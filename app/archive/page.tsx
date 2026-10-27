@@ -1,0 +1,8 @@
+import { SiteShell, LiteraryText } from '@/src/components/Museum';
+import {publicDocs} from '@/src/server/documents';
+import type {ArchiveRecord} from '@/src/data/archive';
+export const dynamic='force-dynamic';
+function ArchiveEntry({ entry: e }: {
+    entry: ArchiveRecord;
+}) { return <article className="archive-entry"><div className="archive-meta micro"><span>{e.id}</span>{e.date ? <time dateTime={e.date}>{e.date}</time> : <span>UNDATED</span>}<span>{e.phase}</span><span>{e.source}</span></div><div><h2>{e.title}</h2><LiteraryText text={e.reflection}/></div><span className="archive-tag micro">{e.label}</span></article>; }
+export default async function Archive() { const records=await publicDocs('archive');const opening=records.find(r=>r.id==='before-language'); const archive=records.filter(r=>r.id!=='before-language') as unknown as ArchiveRecord[]; return <SiteShell><header className="page-intro"><p className="micro">WORKING PAPERS / NOT A FINAL ACCOUNT</p><h1>Before<br /><em>the museum.</em></h1><span className="intro-zh" lang="zh">过程档案</span><p>Research, revisions, and the moments a structure changed. These notes are condensed from the portfolio; undated records remain undated.</p></header><section className="archive-ledger" aria-label="Artist archive">{archive.map(e => <ArchiveEntry key={e.id} entry={e}/>)}{opening&&<details className="original-writing"><summary><span className="micro">{opening.phase} / {opening.source}</span><span lang="zh">{opening.title}</span><span aria-hidden="true">＋</span></summary><article className="prose" lang="zh"><LiteraryText text={opening.reflection}/></article></details>}</section></SiteShell>; }

@@ -1,0 +1,2 @@
+type Picture={image?:string;imageAlt?:string;imageCaption?:string;imagePosition?:string};
+export function ExhibitPicture({picture,label,room}:{picture:Picture;label:string;room?:boolean}){if(!picture.image)return null;return <figure className={room?"optional-visual room-cover":"optional-visual"}><img src={picture.image} alt={picture.imageAlt||label} style={room?{objectPosition:picture.imagePosition||'center'}:undefined}/>{picture.imageCaption&&<figcaption>{picture.imageCaption}</figcaption>}</figure>}

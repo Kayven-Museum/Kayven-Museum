@@ -1,0 +1,8 @@
+{
+  "name": "kayven-museum",
+  "main": "worker.mjs",
+  "account_id": "0ff68e10e264f9fafa2e1fa1c0fbb658",
+  "compatibility_date": "2026-09-01",
+  "workers_dev": true,
+  "preview_urls": false
+}

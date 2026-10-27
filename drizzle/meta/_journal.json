@@ -1,0 +1,48 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1789714075021,
+      "tag": "0000_rich_bloodstorm",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1789715797160,
+      "tag": "0001_fluffy_silverclaw",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1790044638548,
+      "tag": "0002_superb_gorilla_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1791335905749,
+      "tag": "0003_abnormal_mikhail_rasputin",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1791336131717,
+      "tag": "0004_mixed_imperial_guard",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1792464543374,
+      "tag": "0005_oval_whizzer",
+      "breakpoints": true
+    }
+  ]
+}

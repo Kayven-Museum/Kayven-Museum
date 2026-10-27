@@ -1,0 +1,3 @@
+export function DeleteControl({kind,id,revision,title}:{kind:string;id:string;revision:number;title:string}){
+ return <details className="delete-control"><summary>删除{kind==='article'?'文章':kind==='museum'?'博物馆':kind==='room'?'展馆':'记录'}</summary><div><h2>确认删除「{title}」？</h2><p>删除后将从公开网站和编辑列表中移除，原链接不再开放。此操作不会保存上方未提交的修改。</p>{(kind==='museum'||kind==='room')&&<p>馆内如有文章或下级展馆，请先移走或删除，再删除此馆。</p>}<form action="/api/admin/delete" method="post"><input type="hidden" name="kind" value={kind}/><input type="hidden" name="id" value={id}/><input type="hidden" name="revision" value={revision}/><label><input type="checkbox" name="confirmed" value="yes" required/> 我确认删除此内容</label><button type="submit">确认删除</button></form></div></details>;
+}

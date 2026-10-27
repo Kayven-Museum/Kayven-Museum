@@ -1,0 +1,6 @@
+import {SiteShell,ExhibitList,RoomHeader} from '@/src/components/Museum';
+import {publicDocs} from '@/src/server/documents';
+import {getPublishedExhibits} from '@/src/server/content';
+import type {Room} from '@/src/data/museums';
+export const dynamic='force-dynamic';
+export default async function Index(){const [exhibits,museums,rooms]=await Promise.all([getPublishedExhibits(),publicDocs('museum'),publicDocs('room')]);return <SiteShell><header className="page-intro"><p className="micro">GENERAL INDEX / {exhibits.length} CATALOGUED WORKS</p><h1>A register<br/><em>of absences.</em></h1><span className="intro-zh" lang="zh">馆藏目录</span><p>{museums.length} museums. {rooms.length} rooms.<br/>Every object is a way into a piece of writing.</p></header><div className="catalogue">{museums.map(m=><section key={m.id}><header className="catalogue-title"><h2><a href={`/museum/${m.id}`}>{m.numeral}　{m.title} ↗</a></h2><span className="micro">{m.theme}</span></header><ExhibitList items={exhibits.filter(e=>e.museum===m.id&&!e.room)}/>{rooms.filter(r=>r.museum===m.id).map(r=><div key={r.id}><RoomHeader room={r as unknown as Room}/><ExhibitList items={exhibits.filter(e=>e.museum===m.id&&e.room===r.id)}/></div>)}</section>)}</div></SiteShell>}

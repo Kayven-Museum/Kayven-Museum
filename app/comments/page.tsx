@@ -1,3 +1,10 @@
 import {SiteShell} from '@/src/components/Museum';
-export const metadata={title:'Comments · What Remains Unsaid',description:'文学博物馆访客留言簿（暂时只读）。'};
-export default function Comments(){return <SiteShell><section className="comments-page"><header className="comments-heading"><p className="micro">THE VISITORS’ BOOK / CURRENTLY ARCHIVED</p><h1>Leave a little<br/><em>of yourself.</em></h1><p>访客留言簿暂时关闭投稿。作品和展馆仍可自由阅读。</p></header><div className="comments-layout"><aside><h2>一处保留的空白</h2><p>为了确保留言不会在数据库迁移期间丢失，暂时停止接收新留言。</p></aside><section className="comment-stream" aria-label="留言簿状态"><h2>仍然存在的声音</h2><p className="comment-empty">历史留言尚未恢复，恢复后将在这里展示。</p></section></div></section></SiteShell>}
+import {CommentEntry,CommentForm,CommentPages} from '@/src/components/Comments';
+import {listComments,pageNumber} from '@/src/server/comments';
+export const dynamic='force-dynamic';
+export const metadata={title:'Comments · What Remains Unsaid',description:'读者留言与 Kayven 的回复。'};
+export default async function Comments({searchParams}:{searchParams:Promise<{page?:string;sent?:string}>}){
+ const q=await searchParams,page=pageNumber(q.page);let result;
+ try{result=await listComments(page);}catch(error){console.error(error);return <SiteShell><section className="comments-page"><h1>读者留言</h1><p>留言暂时无法读取，请稍后刷新。</p></section></SiteShell>;}
+ return <SiteShell><section className="comments-page"><header className="comments-heading"><p className="micro">THE VISITORS’ BOOK</p><h1>Leave a little<br/><em>of yourself.</em></h1><p>读者留言 <span>／</span> 在离开之前，留下几句话。</p></header>{q.sent==='1'&&<p className="comment-notice" role="status">留言已公开，谢谢你留下的文字。</p>}<div className="comments-layout"><aside><h2>写一则留言</h2><CommentForm/></aside><section className="comment-stream" aria-label="公开留言"><h2>留在这里的声音</h2>{result.comments.length?result.comments.map(c=><CommentEntry key={c.id} comment={c}/>):<p className="comment-empty">{page>1?'这一页还没有留言。':'这里还很安静。你可以留下第一则留言。'}</p>}<CommentPages page={page} more={result.more}/></section></div></section></SiteShell>;
+}

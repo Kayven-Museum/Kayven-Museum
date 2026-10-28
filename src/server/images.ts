@@ -1,7 +1,7 @@
-import {env} from 'cloudflare:workers';
+import {imageBucket as r2Bucket} from '@/src/server/r2';
 import {getDatabase} from '@/db';
 export type ImageInfo={image?:string;imageAlt?:string;imageCaption?:string;imagePosition?:string};
-export function imageBucket(){if(!env.IMAGES)throw Error('图片存储暂时无法使用，请稍后重试。');return env.IMAGES;}
+export const imageBucket = r2Bucket;
 export async function validateImageFields(get:(key:string)=>unknown,previous:ImageInfo={}):Promise<Required<ImageInfo>>{
  const read=(name:keyof ImageInfo,max:number)=>{const input=get(name);const v=typeof input==='string'?input.trim():previous[name]??'';if(v.length>max)throw Error('图片说明过长，请缩短后重试。');return v;};
  const image=read('image',1000),imageAlt=read('imageAlt',300),imageCaption=read('imageCaption',1000),imagePosition=read('imagePosition',20)||'center';

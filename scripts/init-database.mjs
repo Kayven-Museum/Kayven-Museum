@@ -5,8 +5,9 @@ if(!url||!authToken)throw new Error('Set TURSO_DATABASE_URL and TURSO_AUTH_TOKEN
 const db=createClient({url,authToken});
 const migrations=(await readdir('drizzle')).filter(n=>/^\d{4}_.*\.sql$/.test(n)).sort();
 if(!migrations.length)throw new Error('No schema migrations found');
-const tableCheck=await db.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='manuscripts'");
-if(tableCheck.rows.length)throw new Error('Database contains manuscripts already; refusing to reinitialize existing data');
+const found=await db.execute("SELECT name FROM sqlite_master WHERE type='table' AND name IN ('manuscripts','documents','comments','image_assets')");
+if(found.rows.length===4){console.log('Museum schema already initialized; no changes made');process.exit(0);}
+if(found.rows.length!==0)throw new Error('Partial schema found; refusing to change existing tables');
 for(const name of migrations){
  const sql=await readFile('drizzle/'+name,'utf8');
  const statements=sql.split('--> statement-breakpoint').map(s=>s.trim()).filter(Boolean);

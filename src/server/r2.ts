@@ -5,7 +5,7 @@ const pathFor=(id:string)=>'museum-images/'+id;
 export function imageBucket(){
  return {
   async put(id:string,data:ArrayBuffer,options?:{httpMetadata?:{contentType?:string}}){
-   await put(pathFor(id),new Uint8Array(data),{
+   await put(pathFor(id),Buffer.from(data),{
     access:'public',addRandomSuffix:false,
     contentType:options?.httpMetadata?.contentType||'application/octet-stream',
    });

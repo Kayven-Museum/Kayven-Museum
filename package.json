@@ -12,11 +12,12 @@
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next"
   },
   "dependencies": {
-    "drizzle-orm": "^0.45.2",
     "next": "16.2.6",
     "react": "19.2.6",
     "react-dom": "19.2.6",
-    "@vercel/blob": "^2.0.0"
+    "@vercel/blob": "^2.0.0",
+    "@libsql/client": "^0.15.15",
+    "drizzle-orm": "^0.45.2"
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "1.37.1",

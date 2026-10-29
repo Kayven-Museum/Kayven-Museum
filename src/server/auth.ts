@@ -1,27 +1,32 @@
 import {cookies} from 'next/headers';
-const COOKIE='museum_admin_session';
+import {getDatabase} from '@/db';
+const COOKIE='museum_trusted_device';
 const encoder=new TextEncoder();
-function hex(bytes:Uint8Array){return Array.from(bytes).map(x=>x.toString(16).padStart(2,'0')).join('');}
-async function signature(value:string){const secret=process.env.ADMIN_SESSION_SECRET;if(!secret||secret.length<32)return null;const key=await crypto.subtle.importKey('raw',encoder.encode(secret),'HMAC',false,['sign']);return hex(new Uint8Array(await crypto.subtle.sign('HMAC',key,encoder.encode(value))));}
+const MONTH=365*24*60*60;
+async function hash(v:string){return Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',encoder.encode(v)))).map(x=>x.toString(16).padStart(2,'0')).join('');}
+async function table(){const db=getDatabase();await db.prepare('CREATE TABLE IF NOT EXISTS museum_trusted_devices (token_hash TEXT PRIMARY KEY, created_at TEXT NOT NULL, last_used_at TEXT)').run();return db;}
 export async function isAdmin(){
- const cookie=(await cookies()).get(COOKIE)?.value;
- if(!cookie)return false;
- const match=/^(\d+)\.([a-f0-9]{64})$/.exec(cookie);if(!match||Number(match[1])<Date.now())return false;
- const expected=await signature(match[1]);if(!expected)return false;
- let difference=0;for(let i=0;i<64;i++)difference|=expected.charCodeAt(i)^match[2].charCodeAt(i);
- return difference===0;
+  const token=(await cookies()).get(COOKIE)?.value;
+  if(!token||!/^[a-f0-9]{64}$/.test(token))return false;
+  try{const db=await table();const device=await db.prepare('SELECT token_hash FROM museum_trusted_devices WHERE token_hash = ?').bind(await hash(token)).first();return !!device;}catch{return false;}
 }
-export async function makeSession(){
- const expiry=String(Date.now()+7*24*60*60*1000),sig=await signature(expiry);
- if(!sig)throw Error('ADMIN_SESSION_SECRET must be at least 32 characters');
- return expiry+'.'+sig;
+export async function deviceIsEnrolled(){
+  const db=await table();
+  const record=await db.prepare('SELECT COUNT(*) as count FROM museum_trusted_devices').first<{count:number}>();
+  return Number(record?.count??0)>0;
 }
-export const sessionCookie=COOKIE;
-export async function checkPassword(password:string){
- const expected=process.env.ADMIN_PASSWORD;
- if(!expected||expected.length<8)return false;
- const a=encoder.encode(password),b=encoder.encode(expected);
- // Constant-time comparison even for different lengths.
- let diff=a.length^b.length;for(let i=0;i<Math.max(a.length,b.length);i++)diff|=(a[i]??0)^(b[i]??0);
- return diff===0;
+export async function enrollDevice(password:string){
+  const expected=process.env.ADMIN_PASSWORD;
+  if(!expected||expected.length<8)return null;
+  const a=encoder.encode(password),b=encoder.encode(expected);
+  let diff=a.length^b.length;for(let i=0;i<Math.max(a.length,b.length);i++)diff|=(a[i]??0)^(b[i]??0);
+  if(diff!==0)return null;
+  const db=await table();
+  const token=Array.from(crypto.getRandomValues(new Uint8Array(32))).map(x=>x.toString(16).padStart(2,'0')).join('');
+  const tokenHash=await hash(token);
+  // Enrollment can only happen while no device has already been registered.
+  const result=await db.prepare("INSERT INTO museum_trusted_devices (token_hash, created_at) SELECT ?, datetime('now') WHERE NOT EXISTS (SELECT 1 FROM museum_trusted_devices)").bind(tokenHash).run();
+  return result.meta.changes===1?token:null;
 }
+export const deviceCookie=COOKIE;
+export const deviceCookieAge=MONTH;

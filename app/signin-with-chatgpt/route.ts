@@ -3,7 +3,7 @@ const style='<style>body{background:#f4f2ed;color:#222;font:16px/1.6 system-ui;p
 function page(body:string){return '<!doctype html><html lang="zh"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1><title>馆藏编辑室</title>'+style+'<main><h1>馆藏编辑室</h1>'+body+'<p><a href="/">返回网站</a></p></main></html>';}
 const headers={'content-type':'text/html;charset=utf-8','cache-control':'no-store'};
 export async function GET(){
- if(await isAdmin())return Response.redirect('/admin',303);
+ if(await isAdmin())return new Response(null,{status:303,headers:{Location:'/admin','Cache-Control':'no-store'}});
  try{
   const enrolled=await deviceIsEnrolled();
   if(enrolled)return new Response(page('<p>这台浏览器尚未获得编辑室访问权限。只有已经绑定的浏览器可以进入。</p>'),{headers});

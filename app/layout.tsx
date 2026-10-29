@@ -6,7 +6,7 @@ export const metadata: Metadata = {
     icons: { icon: '/favicon.svg' },
     title: 'Kayven | What Remains Unsaid — 文学博物馆',
     description: 'Kayven 的文学作品与创作档案。What Remains Unsaid（未说出口，仍然存在）：关于爱、身体与死亡的文学博物馆。',
-    metadataBase: new URL('https://what-remains-unsaid.prime-oak-8928.chatgpt.site'),
+    metadataBase: new URL('https://kayven-museum.vercel.app'),
     openGraph: {
         title: 'Kayven | What Remains Unsaid — 文学博物馆',
         description: 'Kayven 的文学作品与创作档案。What Remains Unsaid（未说出口，仍然存在）：关于爱、身体与死亡的文学博物馆。',

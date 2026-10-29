@@ -4,7 +4,7 @@ import {visitorHash,formError} from '@/src/server/comments';
 export const dynamic='force-dynamic';
 export async function POST(request:Request){
  const origin=request.headers.get('origin');
- if(origin!==new URL(request.url).origin&&origin!=='https://kayven-museum.kayven.workers.dev')return new Response('跨站请求已拒绝。',{status:403});
+ if(origin!==new URL(request.url).origin)return new Response('跨站请求已拒绝。',{status:403});
  if(!request.headers.get('content-type')?.startsWith('application/x-www-form-urlencoded'))return new Response('Unsupported format',{status:415});
  const raw=await request.text();if(raw.length>40000)return new Response('留言过长。',{status:413});const f=new URLSearchParams(raw);
  try{

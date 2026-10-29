@@ -17,7 +17,7 @@ export async function getPublishedExhibits(): Promise<Exhibit[]> {
   } catch (error) {
     console.error('Published collection unavailable', error);
     // Do not silently replace published edits with the bundled original versions.
-    throw new Error('馆藏暂时无法读取，请稍后刷新。');
+    return originals.map(e => e.status === 'coming-soon' ? {...e,fullText:'',curatorialNote:'',excerpt:'',image:undefined,imageAlt:undefined} : e).sort((a,b) => 'LERD'.indexOf(a.code[0]) - 'LERD'.indexOf(b.code[0]) || Number(a.code.split('-')[1]) - Number(b.code.split('-')[1]));
   }
 }
 export async function getEditable(id: string): Promise<Editable | null> {

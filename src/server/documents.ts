@@ -9,7 +9,9 @@ export type DocState={doc:Doc;revision:number;published:boolean;changed:boolean}
 export const kinds:Kind[]=['museum','room','archive','stage'];
 const originals:Doc[]=[...museums.map((m,i)=>({...m,kind:'museum' as const,order:String(i+1)})),...rooms.map((r,i)=>({...r,preface:r.id==='body-afterward'?articles['body-afterward-preface'].fullText:'',kind:'room' as const,order:String(i+1)})),...archive.map((a,i)=>({...a,date:a.date??'',kind:'archive' as const,order:String(i+1)})),{id:'before-language',kind:'archive',order:'9',title:'在尚未形成语言之前',reflection:articles['before-language'].fullText,date:'',phase:'OPENING TEXT',label:'OPENING TEXT',source:'Portfolio p. 10'}];
 export async function listDocs(kind:Kind,draft=false):Promise<DocState[]>{
- const rows=await getDatabase().prepare('SELECT * FROM documents WHERE id LIKE ?').bind(kind+':%').all<Manuscript>();
+ let rows:{results:Manuscript[]}={results:[]};
+ try{rows=await getDatabase().prepare('SELECT * FROM documents WHERE id LIKE ?').bind(kind+':%').all<Manuscript>();}
+ catch(error){console.warn('Using bundled museum documents because database is unavailable:',error instanceof Error?error.message:'database unavailable');}
  const map=new Map(originals.filter(d=>d.kind===kind).map(doc=>[doc.id,{doc,revision:0,published:true,changed:false}]));
  for(const row of rows.results){const doc:Doc=JSON.parse(row.draft);if(row.deleted){map.delete(doc.id);continue;}const original=originals.find(d=>d.kind===kind&&d.id===doc.id);if(!draft&&!row.published)continue;map.set(doc.id,{doc:draft?doc:JSON.parse(row.published!),revision:row.revision,published:!!row.published||!!original,changed:row.draft!==(row.published??JSON.stringify(original))});}
  return [...map.values()].sort((a,b)=>Number(a.doc.order)-Number(b.doc.order)||a.doc.id.localeCompare(b.doc.id));

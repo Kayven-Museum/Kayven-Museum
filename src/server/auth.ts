@@ -16,8 +16,8 @@ export async function deviceIsEnrolled(){
   return Number(record?.count??0)>0;
 }
 export async function enrollDevice(password:string){
-  const expected=process.env.ADMIN_PASSWORD;
-  if(!expected||expected.length<8)return null;
+  const expected=process.env.DEVICE_ENROLL_TOKEN;
+  if(!expected||expected.length<32)return null;
   const a=encoder.encode(password),b=encoder.encode(expected);
   let diff=a.length^b.length;for(let i=0;i<Math.max(a.length,b.length);i++)diff|=(a[i]??0)^(b[i]??0);
   if(diff!==0)return null;

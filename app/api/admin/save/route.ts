@@ -19,11 +19,29 @@ export async function POST(request:Request){
  const form=new FormData();new URLSearchParams(body).forEach((value,key)=>form.set(key,value));
  try{
   const intent=form.get('intent');if(!['save','preview','publish'].includes(String(intent)))throw new Error('请选择保存、预览或发布。');
-  const code=String(form.get('code')??'').toUpperCase();
+  let code=String(form.get('code')??'').toUpperCase();
   if(!/^[A-Z]{1,8}-\d{2,4}$/.test(code))throw new Error('请填写有效的展品编号。');
-  const id=code.toLowerCase();const current=await getEditable(id);
   const isNew=form.get('isNew')==='1';
-  if(isNew&&current)throw new SaveConflict('这个编号已经存在。请更换一个尚未使用的编号。');
+  // For a new work, an old tab or another creation may have taken the suggested ID.
+  // Allocate a free code instead of rejecting the user's entire manuscript.
+  let id=code.toLowerCase();
+  let current=await getEditable(id);
+  if(isNew&&current){
+    const prefix=code.split('-')[0];
+    const start=Number(code.split('-')[1]);
+    let available=false;
+    for(let number=start+1;number<=9999;number++){
+      const candidate=prefix+'-'+String(number).padStart(2,'0');
+      if(!await getEditable(candidate.toLowerCase())){
+        code=candidate;id=candidate.toLowerCase();
+        form.set('code',code);
+        current=null;
+        available=true;
+        break;
+      }
+    }
+    if(!available)throw new Error('展品编号已用尽，请更换编号前缀。');
+  }
   if(!isNew&&!current)throw new Error('展品不存在，请从“添加作品”开始。');
   const revision=Number(form.get('revision'));
   if(form.has('confirmOverwrite')&&form.get('confirmOverwrite')!=='yes')throw new Error('请先确认覆盖。');

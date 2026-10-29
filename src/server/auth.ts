@@ -19,7 +19,7 @@ export async function makeSession(){
 export const sessionCookie=COOKIE;
 export async function checkPassword(password:string){
  const expected=process.env.ADMIN_PASSWORD;
- if(!expected||expected.length<12)return false;
+ if(!expected||expected.length<8)return false;
  const a=encoder.encode(password),b=encoder.encode(expected);
  // Constant-time comparison even for different lengths.
  let diff=a.length^b.length;for(let i=0;i<Math.max(a.length,b.length);i++)diff|=(a[i]??0)^(b[i]??0);

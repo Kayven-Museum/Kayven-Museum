@@ -1,4 +1,5 @@
 import {DeleteControl} from './DeleteControl';
+import {EditorDraftBackup} from './EditorDraftBackup';
 import {ImageEditor} from './ImageEditor';
 import {destinations} from '@/src/server/documents';
 import type { ReactNode } from 'react';
@@ -14,7 +15,7 @@ export async function EditorForm({record,isNew=false,notice}:{record:Editable;is
  const e=record.exhibit; const places=await destinations();
  return <AdminShell><a className="admin-back" href="/admin">← 全部作品</a><div className="admin-title"><div><p className="micro">{isNew?'NEW EXHIBIT':`${e.code} / MANUSCRIPT`}</p><h1>{isNew?'添加一篇作品':e.titleZh}</h1></div><span className="admin-state">{record.changed?'有未发布草稿':record.published?'已公开':'未发布'}</span></div>
  {notice&&<p className="admin-notice" role="status">{notice}</p>}
- <form className="editor-form" action="/api/admin/save" method="post">
+ <EditorDraftBackup id={e.id} revision={record.revision} saved={notice==='草稿已保存，公开页面尚未改变。'||notice==='已发布。访客现在可以看到最新内容。'}/><form className="editor-form" action="/api/admin/save" method="post">
  <input type="hidden" name="revision" value={record.revision}/><input type="hidden" name="isNew" value={isNew?'1':'0'}/>
  <section className="editor-metadata"><h2>01 / 展品信息</h2><div className="editor-grid">
  <label>展品编号<input name="code" defaultValue={e.code} readOnly={!isNew} required pattern="[A-Za-z]{1,8}-[0-9]{2,4}" maxLength={13}/><small>例如 L-06 或 NEW-01。已有编号不能更改；所属展馆在下方选择。</small></label>
